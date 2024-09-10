@@ -11,6 +11,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Set;
 use Illuminate\Database\Eloquent\Collection;
 
+//inspired https://medium.com/@chrishansondev/laravel-filament-building-custom-form-components-not-fields-afeb842dacd5
 class BrowseCategories extends Component implements HasForms
 {
     use InteractsWithForms;

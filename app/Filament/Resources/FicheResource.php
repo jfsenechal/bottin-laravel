@@ -26,7 +26,7 @@ class FicheResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static array $disabledMarkdown = [
+    protected static array $disabledFieldsMarkdown = [
         'image',
         'attachFiles',
         'table',
@@ -53,11 +53,15 @@ class FicheResource extends Resource
                                     ->autocomplete(false),
                                 Forms\Components\TextInput::make('numero')
                                     ->autocomplete(false),
-                                Forms\Components\TextInput::make('cp'),
+                                Forms\Components\TextInput::make('cp')->label('Code postal')->integer(),
                                 Forms\Components\TextInput::make('localite')
                                     ->autocomplete(false),
                                 Forms\Components\TextInput::make('website')
+                                    ->url()
                                     ->prefix('https://'),
+                                Forms\Components\TextInput::make('email')
+                                    ->email()
+                                    ->prefixIcon('heroicon-m-at-symbol'),
                             ]),
                         Tabs\Tab::make('Contacts')
                             ->schema([
@@ -88,9 +92,8 @@ class FicheResource extends Resource
                         Tabs\Tab::make('Classement(s)')
                             ->schema([
                                 Section::make('Ajouter un recherchant par mot clef')
-                                    ->description('Prevent abuse by limiting the number of requests per period')
                                     ->schema([
-                                        Forms\Components\Select::make('category')
+                                        Forms\Components\Select::make('categories')
                                             ->relationship('categories', 'name')
                                             ->searchable()
                                             ->multiple()
@@ -98,13 +101,12 @@ class FicheResource extends Resource
                                             ->helperText(''),
                                     ]),
                                 Section::make('Ajouter en parcourant')
-                                    ->description('Prevent abuse by limiting the number of requests per period')
                                     ->schema([
                                         Forms\Components\Actions::make([
                                             Action::make('browseCategories')
                                                 ->label('Parcour les catégories')
                                                 ->form([
-                                                    Forms\Components\TextInput::make('categorySelected'),
+                                                    Forms\Components\Hidden::make('categorySelected'),
                                                     BrowseCategories::make()
                                                         ->categories(function (Get $get) {
                                                             $search = $get('categorySelected');
@@ -113,8 +115,13 @@ class FicheResource extends Resource
                                                         })
                                                         ->breadcrumb([]),
                                                 ])
-                                                ->action(function (array $data) {
-                                                    dd($data['categorySelected']);
+                                                ->action(function (?Fiche $record, array $data) {
+                                                    $category = $data['categorySelected'];
+                                                    $record->categories()->attach($category);
+                                                   /* $this->refreshFormData([
+                                                        'status',
+                                                    ]);*/
+                                                    //todo refresh
                                                 }),
                                         ]),
                                     ]),
@@ -122,11 +129,11 @@ class FicheResource extends Resource
                         Tabs\Tab::make('Infos complémentaires')
                             ->schema([
                                 Forms\Components\MarkdownEditor::make('comment1')
-                                    ->disableToolbarButtons(self::$disabledMarkdown),
+                                    ->disableToolbarButtons(self::$disabledFieldsMarkdown),
                                 Forms\Components\MarkdownEditor::make('comment2')
-                                    ->disableToolbarButtons(self::$disabledMarkdown),
+                                    ->disableToolbarButtons(self::$disabledFieldsMarkdown),
                                 Forms\Components\MarkdownEditor::make('comment3')
-                                    ->disableToolbarButtons(self::$disabledMarkdown),
+                                    ->disableToolbarButtons(self::$disabledFieldsMarkdown),
                             ]),
                         Tabs\Tab::make('Tags')
                             ->schema([
