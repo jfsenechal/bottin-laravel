@@ -4,10 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Enum\SocialNetworksEnum;
 use App\Filament\Resources\FicheResource\Pages;
+use App\Livewire\MemberCheckinList;
 use App\Models\Category;
 use App\Models\Fiche;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Form;
@@ -16,6 +18,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -30,6 +33,8 @@ class FicheResource extends Resource
         'attachFiles',
         'table',
     ];
+
+    public $query = null;
 
     public static function form(Form $form): Form
     {
@@ -122,6 +127,70 @@ class FicheResource extends Resource
                                 Forms\Components\MarkdownEditor::make('comment3')
                                     ->disableToolbarButtons(self::$disabledMarkdown),
                             ]),
+                        Tabs\Tab::make('Class32')
+                            ->schema([
+                                Forms\Components\Select::make('category_id')
+                                    ->label('Category')
+                                    ->options(
+                                        Category::whereNull('parent_id')->pluck('name', 'id'),
+                                    )
+                                    ->reactive()
+                                    ->afterStateUpdated(fn($state, callable $set) => $set('subcategory_id', null))
+                                    ->createOptionForm([
+                                        Forms\Components\Select::make('subcategory_id')
+                                            ->label('Subcategory')
+                                            ->options(function (callable $get) {
+                                                $selectedCategory = $get('category_id');
+                                                dump($selectedCategory);
+                                                if ($selectedCategory) {
+                                                    return Category::where(
+                                                        'parent_id',
+                                                        $selectedCategory,
+                                                    )->pluck('name', 'id');
+                                                }
+
+                                                return [];
+                                            })
+                                            ->reactive(),
+                                    ]),
+                            ]),
+                        Tabs\Tab::make('Class2')
+                            ->schema([
+                                Forms\Components\Select::make('category_id')
+                                    ->label('Category')
+                                    ->options(
+                                        Category::whereNull('parent_id')->pluck('name', 'id'),
+                                    )  // Starting with root categories
+                                    ->reactive()
+                                    ->afterStateUpdated(fn($state, callable $set) => $set('subcategory_id', null)),
+                                Forms\Components\Select::make('subcategory_id')
+                                    ->label('Subcategory')
+                                    ->options(function (callable $get) {
+                                        $selectedCategory = $get('category_id');
+                                        if ($selectedCategory) {
+                                            return Category::where('parent_id', $selectedCategory)->pluck('name', 'id');
+                                        }
+
+                                        return [];
+                                    })
+                                    ->reactive()
+                                    ->afterStateUpdated(fn($state, callable $set) => $set('subsubcategory_id', null)),
+                                Forms\Components\Select::make('subsubcategory_id')
+                                    ->label('Sub-Subcategory')
+                                    ->options(function (callable $get) {
+                                        $selectedSubCategory = $get('subcategory_id');
+                                        if ($selectedSubCategory) {
+                                            return Category::where('parent_id', $selectedSubCategory)->pluck(
+                                                'name',
+                                                'id',
+                                            );
+                                        }
+
+                                        return [];
+                                    })
+                                    ->reactive(),
+                                // Additional Select components can be added similarly for further depth in category levels
+                            ]),
                         Tabs\Tab::make('Tags')
                             ->schema([
                                 Forms\Components\Select::make('tags')
@@ -132,6 +201,57 @@ class FicheResource extends Resource
                                         Forms\Components\TextInput::make('name')
                                             ->required(),
                                     ]),
+                            ]),
+                        Tabs\Tab::make('Popo')
+                            ->schema([
+                                Forms\Components\Actions::make([
+                                    Action::make('createCheckin')
+                                        ->form([
+                                            Forms\Components\TextInput::make('categorySelected'),
+                                            MemberCheckinList::make()
+                                                /*
+                                                  you can either pass an array or use closures
+                                                  like I am to update the component on update of
+                                                  the search field
+                                                 */
+                                                ->members(function (Get $get) {
+                                                    $members = Category::roots();
+                                                    $search = $get('search');
+
+                                                    return $members;
+                                                })
+                                                ->breadcrumb([]),
+                                        ])
+                                        ->slideOver(false)
+                                        ->action(function (array $data) {
+                                            dd($data);
+                                        }),
+                                    Forms\Components\Actions\Action::make('Generate excerpt')
+                                        ->form([
+                                            Forms\Components\TextInput::make('catehidden'),
+                                        ])
+                                        ->action(function (Forms\Get $get, Forms\Set $set) {
+                                            dd($get('catehidden'));
+                                            //  $set('excerpt', str($get('catehidden'))->words(45, end: ''));
+                                        })
+                                        // ->livewire(new BrowseCategory())
+                                        ->modalContent(fn(Action $action): View
+                                            => view(
+                                            'filament.pages.modal',
+                                            [
+                                                'name' => 'zeze',
+                                                'action' => $action,
+                                                'categories' =>
+                                                    Category::roots(),
+                                            ],
+                                        ))
+                                        ->registerModalActions([
+                                            Action::make('report')
+                                                ->action(function (?Fiche $record) {
+                                                    dump(13);
+                                                }),
+                                        ]),
+                                ]),
                             ]),
                         Tabs\Tab::make('Images')
                             ->schema([
@@ -160,7 +280,10 @@ class FicheResource extends Resource
                                         $set('longitude', $state['lng']);
                                     })
                                     ->afterStateHydrated(function ($state, $record, Set $set): void {
-                                        $set('location', ['lat' => $record?->latitude, 'lng' => $record?->longitude]);
+                                        $set(
+                                            'location',
+                                            ['lat' => $record?->latitude, 'lng' => $record?->longitude],
+                                        );
                                     })
                                     ->extraStyles([
                                         'min-height: 150vh',

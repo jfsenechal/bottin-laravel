@@ -10,15 +10,13 @@ use Illuminate\Support\Collection;
 class Draft extends Page
 {
     protected static string $view = 'filament.pages.draft';
-    public $data;
-    public array|null $breadcrumbs = null;
-    public ?Collection $breadcrumb = null;
+    public Collection $categories;
+    public array|null $paths = null;
 
     public function mount(): void
     {
-        $this->breadcrumbs = [];
-        $this->breadcrumb = new Collection();
-        $this->data = Category::where('parent_id', '=', null)->orderby('name')->get();
+        $this->paths = [];
+        $this->categories = Category::where('parent_id', '=', null)->orderby('name')->get();
     }
 
     public function selectAction(): Action
@@ -31,11 +29,20 @@ class Draft extends Page
             ->iconPosition('after')
             ->action(function (array $arguments) {
                 $category = Category::query()->find($arguments['categoryId']);
-                $this->breadcrumbs['/'.$category->id] = $category->name;
-                $this->breadcrumb->add($category);
-                $this->data = Category::where('parent_id', $category->id)->get();
+                $this->paths['/'.$category->id] = $category->name;
+                $this->categories = Category::where('parent_id', $category->id)->get();
             });
     }
 
+    public function save()
+    {
+        Post::create(
+            $this->only(['title', 'content'])
+        );
+
+        session()->flash('status', 'Post successfully updated.');
+
+        return $this->redirect('/posts');
+    }
 
 }
