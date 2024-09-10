@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Fiche;
+use App\Models\TagGroup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,15 +16,23 @@ return new class extends Migration {
             $table->id();
             $table->string('name', 120);
         });
+        Schema::create('tag_groups', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 120);
+        });
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 120); // name (varchar 255, not null)
-            $table->string('slug')->nullable(); // slug (varchar 255, nullable)
-            $table->string('color')->nullable(); // color (varchar 255, nullable)
-            $table->string('icon')->nullable(); // icon (varchar 255, nullable)
-            $table->boolean('private')->default(false); // private (tinyint 1, not null)
-            $table->string('groupe')->nullable(); // groupe (varchar 255, nullable)
-            $table->longText('description')->nullable(); // description (longtext, nullable)
+            $table->string('name', 120);
+            $table->string('slug')->nullable();
+            $table->string('color')->nullable();
+            $table->string('icon')->nullable();
+            $table->boolean('private')->default(false);
+            $table->longText('description')->nullable();
+            $table->foreignIdFor(TagGroup::class)
+                ->constrained()
+                ->onDelete(
+                'cascade',
+            );
         });
         Schema::create('horaires', function (Blueprint $table) {
             $table->id();
@@ -64,7 +73,7 @@ return new class extends Migration {
         });
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
+            $table->string('group');
             $table->string('url');
             $table
                 ->foreignIdFor(Fiche::class)
@@ -82,6 +91,7 @@ return new class extends Migration {
     {
         Schema::dropIfExists('cities');
         Schema::dropIfExists('tags');
+        Schema::dropIfExists('tag_groups');
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('horaires');
         Schema::dropIfExists('links');

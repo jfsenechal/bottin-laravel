@@ -47,12 +47,14 @@ class Fiche extends Model
         return $this->belongsToMany(Tag::class);
     }
 
-    /**
-     * Get the contacts for the fiche.
-     */
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class);
+    }
+
+    public function links(): HasMany
+    {
+        return $this->hasMany(Link::class);
     }
 
     protected function location222(): Attribute

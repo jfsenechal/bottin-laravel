@@ -2,28 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ContactResource\Pages;
-use App\Filament\Resources\ContactResource\RelationManagers;
-use App\Models\Contact;
-use Filament\Forms;
+use App\Filament\Resources\TagGroupResource\Pages;
+use App\Models\TagGroup;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ContactResource extends Resource
+class TagGroupResource extends Resource
 {
-    protected static ?string $model = Contact::class;
-
+    protected static ?string $model = TagGroup::class;
+    protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('name'),
             ]);
     }
 
@@ -31,13 +28,12 @@ class ContactResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name')->searchable(),
             ])
             ->filters([
-                //
+
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -50,17 +46,16 @@ class ContactResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListContacts::route('/'),
-            'create' => Pages\CreateContact::route('/create'),
-            'view' => Pages\ViewContact::route('/{record}'),
-            'edit' => Pages\EditContact::route('/{record}/edit'),
+            'index' => Pages\ListTagGroups::route('/'),
+            'create' => Pages\CreateTagGroup::route('/create'),
+            'edit' => Pages\EditTagGroup::route('/{record}/edit'),
         ];
     }
 }

@@ -4,23 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Tag extends Model
+class TagGroup extends Model
 {
     use HasFactory;
 
     protected $fillable = ['name'];
     public $timestamps = false;
 
-    public function fiches(): BelongsToMany
+    public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Fiche::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(TagGroup::class);
+        return $this->belongsToMany(Tag::class);
     }
 }

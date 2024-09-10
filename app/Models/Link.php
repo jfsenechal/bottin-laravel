@@ -12,6 +12,7 @@ class Link extends Model
     use HasFactory;
 
     protected $fillable = ['type','url'];
+    public $timestamps = false;
 
     /**
      * Get the fiche that owns the link.

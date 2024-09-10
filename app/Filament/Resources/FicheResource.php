@@ -81,7 +81,7 @@ class FicheResource extends Resource
                                         Forms\Components\TextInput::make('email')
                                             ->label('Email address')
                                             ->email()
-                                            ->suffixIcon('heroicon-m-globe-alt')
+                                            ->prefixIcon('heroicon-m-at-symbol')
                                             ->autocomplete(false)
                                             ->maxLength(150),
                                         Forms\Components\TextInput::make('telephone')
@@ -107,7 +107,7 @@ class FicheResource extends Resource
                                                 ->label('Parcour les catégories')
                                                 ->form([
                                                     Forms\Components\Hidden::make('categorySelected'),
-                                                    BrowseCategories::make()
+                                                    BrowseCategories::make('categoryBrowse')
                                                         ->categories(function (Get $get) {
                                                             $search = $get('categorySelected');
 
@@ -118,9 +118,9 @@ class FicheResource extends Resource
                                                 ->action(function (?Fiche $record, array $data) {
                                                     $category = $data['categorySelected'];
                                                     $record->categories()->attach($category);
-                                                   /* $this->refreshFormData([
-                                                        'status',
-                                                    ]);*/
+                                                    /* $this->refreshFormData([
+                                                         'status',
+                                                     ]);*/
                                                     //todo refresh
                                                 }),
                                         ]),
@@ -199,17 +199,50 @@ class FicheResource extends Resource
                                     ]),
 
                             ]),
-                        Tabs\Tab::make('Horaires')
-                            ->schema([]),
                         Tabs\Tab::make('Réseaux sociaux')
                             ->schema([
-                                Forms\Components\Select::make('links')
-                                    ->required()
+                                Forms\Components\Repeater::make('links')
+                                    ->relationship()
                                     ->label('Réseaux sociaux')
-                                    ->options(
-                                        SocialNetworksEnum::class,
-                                    ),
-                                Forms\Components\TextInput::make('value'),
+                                    ->reorderable(false)
+                                    ->addActionLabel('Ajouter le lien')
+                                    ->schema([
+                                        Forms\Components\Select::make('links')
+                                            ->label('Type')
+                                            ->required()
+                                            ->options(
+                                                SocialNetworksEnum::class,
+                                            ),
+                                        Forms\Components\TextInput::make('url')
+                                            ->url()
+                                            ->prefix('https://')
+                                            ->required(),
+                                    ])
+                                    ->columns(2),
+                            ]),
+                        Tabs\Tab::make('Horaires')
+                            ->schema([
+                                Forms\Components\Repeater::make('links')
+                                    ->relationship()
+                                    ->label('Réseaux sociaux')
+                                    ->reorderable(false)
+                                    ->defaultItems(3)
+                                    ->addable(false)
+                                    ->cloneable()
+                                    ->deletable(false)
+                                    ->schema([
+                                        Forms\Components\Select::make('links')
+                                            ->label('Type')
+                                            ->required()
+                                            ->options(
+                                                SocialNetworksEnum::class,
+                                            ),
+                                        Forms\Components\TextInput::make('url')
+                                            ->url()
+                                            ->prefix('https://')
+                                            ->required(),
+                                    ])
+                                    ->columns(2),
                             ]),
                     ]),
             ]);

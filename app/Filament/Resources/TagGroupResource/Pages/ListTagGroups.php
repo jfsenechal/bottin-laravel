@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ContactResource\Pages;
+namespace App\Filament\Resources\TagGroupResource\Pages;
 
-use App\Filament\Resources\ContactResource;
+use App\Filament\Resources\TagGroupResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListContacts extends ListRecords
+class ListTagGroups extends ListRecords
 {
-    protected static string $resource = ContactResource::class;
+    protected static string $resource = TagGroupResource::class;
 
     protected function getHeaderActions(): array
     {

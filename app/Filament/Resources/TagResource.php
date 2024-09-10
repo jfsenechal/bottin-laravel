@@ -16,8 +16,8 @@ use Illuminate\Support\Str;
 class TagResource extends Resource
 {
     protected static ?string $model = Tag::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Métas';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
 
     public static function form(Form $form): Form
     {
@@ -32,6 +32,9 @@ class TagResource extends Resource
                         $set('slug', Str::slug($state));
                     }),
                 Forms\Components\TextInput::make('description'),
+                Forms\Components\Select::make('tag_group_id')
+                    ->label('Groupe')
+                    ->relationship(name: 'group', titleAttribute: 'name'),
                 Forms\Components\FileUpload::make('icon')
                     ->disk('public')
                     ->image(),
@@ -44,7 +47,8 @@ class TagResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\ImageColumn::make('description')->searchable(),
+                Tables\Columns\TextColumn::make('group.name'),
+                Tables\Columns\ImageColumn::make('description'),
             ])
             ->filters([
                 //

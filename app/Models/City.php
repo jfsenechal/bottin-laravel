@@ -9,4 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class City extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name'];
+    public $timestamps = false;
 }

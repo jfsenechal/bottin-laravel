@@ -26,9 +26,9 @@ class BrowseCategories extends Component implements HasForms
         $this->form->fill();
     }
 
-    public static function make(): static
+    public static function make(string $name): static
     {
-        $static = app(static::class, []);
+        $static = app(static::class, ['name' => $name]);
         $static->configure();
 
         return $static;

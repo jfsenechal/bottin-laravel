@@ -12,23 +12,23 @@ return new class extends Migration {
     {
         Schema::create('adresses', function (Blueprint $table) {
             $table->id();
-            $table->string('nom', 150);
-            $table->string('rue', 255);
+            $table->string('nom', 150)->nullable();
+            $table->string('rue', 255)->nullable();
             $table->string('numero', 255)->nullable();
-            $table->integer('cp');
-            $table->string('localite', 255);
+            $table->integer('cp')->nullable();
+            $table->string('localite', 255)->nullable();
             $table->string('longitude', 255)->nullable();
             $table->string('latitude', 255)->nullable();
             $table->string('slug', 255)->nullable();
         });
         Schema::create('fiches', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->nullable(); // slug (varchar 255, nullable)
-            $table->string('societe'); // societe (varchar 255)
-            $table->string('rue')->nullable(); // rue (varchar 255, nullable)
-            $table->string('numero')->nullable(); // numero (varchar 255, nullable)
-            $table->integer('cp')->nullable(); // cp (int, nullable)
-            $table->string('localite')->nullable(); // localite (varchar 255, nullable)
+            $table->string('slug')->nullable()->unique();
+            $table->string('societe');
+            $table->string('rue')->nullable();
+            $table->string('numero')->nullable();
+            $table->integer('cp')->nullable();
+            $table->string('localite')->nullable();
             $table->string('telephone')->nullable(); // telephone (varchar 255, nullable)
             $table->string('telephone_autre')->nullable(); // telephone_autre (varchar 255, nullable)
             $table->string('fax')->nullable(); // fax (varchar 255, nullable)
