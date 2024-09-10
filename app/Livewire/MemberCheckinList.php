@@ -4,17 +4,26 @@ namespace App\Livewire;
 
 use App\Models\Category;
 use Closure;
+use Filament\Forms\Set;
+use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Component;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Illuminate\Database\Eloquent\Collection;
 
-class MemberCheckinList extends Component
+class MemberCheckinList extends Component implements HasForms
 {
+    use InteractsWithForms;
     protected string $view = 'filament.pages.member';
     // our members data, you can pass an array or closure
     protected Collection|array|Closure $members = [];
     protected array $breadcrumb;
-    public array $data = ['yyy'];
+
+    public function mount(): void
+    {
+        $this->form->fill();
+    }
 
     public static function make(): static
     {
@@ -72,9 +81,10 @@ class MemberCheckinList extends Component
                 return $arguments['name'];
             })
             ->outlined() // makes this an outlined button, remove if you want default
-            ->action(function (array $arguments) {
+            ->action(function (Set $set,array $arguments) {
                 // I use ray for local testing, remove this line or use dump or dd
                 // here you can handle the action how ever you need to
+                $set('categorySelected',$arguments['userId']);
                 $category = Category::query()->find($arguments['userId']);
                 $this->breadcrumb[$category->id] = $category->name;
                 $this->members(Category::childrenOfParent($category->id));
@@ -87,4 +97,7 @@ class MemberCheckinList extends Component
     {
         return 'memberCheckins';
     }
+
+
+
 }

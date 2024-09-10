@@ -209,48 +209,17 @@ class FicheResource extends Resource
                                         ->form([
                                             Forms\Components\TextInput::make('categorySelected'),
                                             MemberCheckinList::make()
-                                                /*
-                                                  you can either pass an array or use closures
-                                                  like I am to update the component on update of
-                                                  the search field
-                                                 */
                                                 ->members(function (Get $get) {
                                                     $members = Category::roots();
-                                                    $search = $get('search');
+                                                    $search = $get('categorySelected');
 
                                                     return $members;
                                                 })
                                                 ->breadcrumb([]),
                                         ])
-                                        ->slideOver(false)
                                         ->action(function (array $data) {
-                                            dd($data);
+                                            dd($data['categorySelected']);
                                         }),
-                                    Forms\Components\Actions\Action::make('Generate excerpt')
-                                        ->form([
-                                            Forms\Components\TextInput::make('catehidden'),
-                                        ])
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            dd($get('catehidden'));
-                                            //  $set('excerpt', str($get('catehidden'))->words(45, end: ''));
-                                        })
-                                        // ->livewire(new BrowseCategory())
-                                        ->modalContent(fn(Action $action): View
-                                            => view(
-                                            'filament.pages.modal',
-                                            [
-                                                'name' => 'zeze',
-                                                'action' => $action,
-                                                'categories' =>
-                                                    Category::roots(),
-                                            ],
-                                        ))
-                                        ->registerModalActions([
-                                            Action::make('report')
-                                                ->action(function (?Fiche $record) {
-                                                    dump(13);
-                                                }),
-                                        ]),
                                 ]),
                             ]),
                         Tabs\Tab::make('Images')
