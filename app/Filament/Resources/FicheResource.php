@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enum\SocialNetworksEnum;
 use App\Filament\Resources\FicheResource\Pages;
-use App\Livewire\MemberCheckinList;
+use App\Livewire\BrowseCategories;
 use App\Models\Category;
 use App\Models\Fiche;
 use Dotswan\MapPicker\Fields\Map;
@@ -18,8 +18,6 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class FicheResource extends Resource
@@ -102,20 +100,23 @@ class FicheResource extends Resource
                                 Section::make('Ajouter en parcourant')
                                     ->description('Prevent abuse by limiting the number of requests per period')
                                     ->schema([
-                                        Forms\Components\Select::make('categories')
-                                            ->helperText('Ajouter en parcourant')
-                                            ->relationship('categories', 'name')
-                                            ->options(
-                                                Category::query()
-                                                    ->where('parent_id', null)
-                                                    ->pluck('name', 'id'),
-                                            )
-                                            ->live(),
-                                        Forms\Components\Select::make('sub_category')
-                                            ->options(fn(Get $get): Collection
-                                                => Category::query()
-                                                ->where('parent_id', $get('categories'))
-                                                ->pluck('name', 'id')),
+                                        Forms\Components\Actions::make([
+                                            Action::make('browseCategories')
+                                                ->label('Parcour les catégories')
+                                                ->form([
+                                                    Forms\Components\TextInput::make('categorySelected'),
+                                                    BrowseCategories::make()
+                                                        ->categories(function (Get $get) {
+                                                            $search = $get('categorySelected');
+
+                                                            return Category::roots();
+                                                        })
+                                                        ->breadcrumb([]),
+                                                ])
+                                                ->action(function (array $data) {
+                                                    dd($data['categorySelected']);
+                                                }),
+                                        ]),
                                     ]),
                             ]),
                         Tabs\Tab::make('Infos complémentaires')
@@ -127,70 +128,6 @@ class FicheResource extends Resource
                                 Forms\Components\MarkdownEditor::make('comment3')
                                     ->disableToolbarButtons(self::$disabledMarkdown),
                             ]),
-                        Tabs\Tab::make('Class32')
-                            ->schema([
-                                Forms\Components\Select::make('category_id')
-                                    ->label('Category')
-                                    ->options(
-                                        Category::whereNull('parent_id')->pluck('name', 'id'),
-                                    )
-                                    ->reactive()
-                                    ->afterStateUpdated(fn($state, callable $set) => $set('subcategory_id', null))
-                                    ->createOptionForm([
-                                        Forms\Components\Select::make('subcategory_id')
-                                            ->label('Subcategory')
-                                            ->options(function (callable $get) {
-                                                $selectedCategory = $get('category_id');
-                                                dump($selectedCategory);
-                                                if ($selectedCategory) {
-                                                    return Category::where(
-                                                        'parent_id',
-                                                        $selectedCategory,
-                                                    )->pluck('name', 'id');
-                                                }
-
-                                                return [];
-                                            })
-                                            ->reactive(),
-                                    ]),
-                            ]),
-                        Tabs\Tab::make('Class2')
-                            ->schema([
-                                Forms\Components\Select::make('category_id')
-                                    ->label('Category')
-                                    ->options(
-                                        Category::whereNull('parent_id')->pluck('name', 'id'),
-                                    )  // Starting with root categories
-                                    ->reactive()
-                                    ->afterStateUpdated(fn($state, callable $set) => $set('subcategory_id', null)),
-                                Forms\Components\Select::make('subcategory_id')
-                                    ->label('Subcategory')
-                                    ->options(function (callable $get) {
-                                        $selectedCategory = $get('category_id');
-                                        if ($selectedCategory) {
-                                            return Category::where('parent_id', $selectedCategory)->pluck('name', 'id');
-                                        }
-
-                                        return [];
-                                    })
-                                    ->reactive()
-                                    ->afterStateUpdated(fn($state, callable $set) => $set('subsubcategory_id', null)),
-                                Forms\Components\Select::make('subsubcategory_id')
-                                    ->label('Sub-Subcategory')
-                                    ->options(function (callable $get) {
-                                        $selectedSubCategory = $get('subcategory_id');
-                                        if ($selectedSubCategory) {
-                                            return Category::where('parent_id', $selectedSubCategory)->pluck(
-                                                'name',
-                                                'id',
-                                            );
-                                        }
-
-                                        return [];
-                                    })
-                                    ->reactive(),
-                                // Additional Select components can be added similarly for further depth in category levels
-                            ]),
                         Tabs\Tab::make('Tags')
                             ->schema([
                                 Forms\Components\Select::make('tags')
@@ -201,26 +138,6 @@ class FicheResource extends Resource
                                         Forms\Components\TextInput::make('name')
                                             ->required(),
                                     ]),
-                            ]),
-                        Tabs\Tab::make('Popo')
-                            ->schema([
-                                Forms\Components\Actions::make([
-                                    Action::make('createCheckin')
-                                        ->form([
-                                            Forms\Components\TextInput::make('categorySelected'),
-                                            MemberCheckinList::make()
-                                                ->members(function (Get $get) {
-                                                    $members = Category::roots();
-                                                    $search = $get('categorySelected');
-
-                                                    return $members;
-                                                })
-                                                ->breadcrumb([]),
-                                        ])
-                                        ->action(function (array $data) {
-                                            dd($data['categorySelected']);
-                                        }),
-                                ]),
                             ]),
                         Tabs\Tab::make('Images')
                             ->schema([

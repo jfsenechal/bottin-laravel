@@ -13,7 +13,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Illuminate\Support\Collection;
 
-class BrowseCategory extends Component implements HasForms
+class BrowseDraft extends Component implements HasForms
 {
     use InteractsWithForms;
 
