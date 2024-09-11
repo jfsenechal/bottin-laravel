@@ -8,6 +8,7 @@ use App\Livewire\BrowseCategories;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Fiche;
+use App\Models\Tag;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -19,8 +20,10 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+
 
 class FicheResource extends Resource
 {
@@ -33,8 +36,6 @@ class FicheResource extends Resource
         'attachFiles',
         'table',
     ];
-
-    public $query = null;
 
     public static function form(Form $form): Form
     {
@@ -70,12 +71,12 @@ class FicheResource extends Resource
                             ]),
                         Tabs\Tab::make('Contacts')
                             ->schema([
-                                Forms\Components\Repeater::make('fiche_id')
+                                Forms\Components\Repeater::make('contacts')
                                     ->columns(2)
                                     ->relationship('contacts')
-                                    ->addable(true)
-                                    ->reorderable(true)
-                                    ->addActionLabel(__('messages.register.form.btn.add.runner.label'))
+                                    ->addable()
+                                    ->reorderable(false)
+                                    ->addActionLabel('Ajouter un contact')
                                     ->schema([
                                         Forms\Components\TextInput::make('nom')
                                             ->autocomplete(false)
@@ -83,14 +84,21 @@ class FicheResource extends Resource
                                         Forms\Components\TextInput::make('prenom')
                                             ->autocomplete(false)
                                             ->maxLength(150),
+                                        Forms\Components\TextInput::make('fonction')
+                                            ->autocomplete(false)
+                                            ->maxLength(150),
                                         Forms\Components\TextInput::make('email')
-                                            ->label('Email address')
+                                            ->label('Email')
                                             ->email()
                                             ->prefixIcon('heroicon-m-at-symbol')
                                             ->autocomplete(false)
                                             ->maxLength(150),
+                                        Forms\Components\TextInput::make('gsm')
+                                            ->autocomplete(false)
+                                            ->tel(),
                                         Forms\Components\TextInput::make('telephone')
-                                            ->label('Phone number')
+                                            ->label('Téléphone')
+                                            ->autocomplete(false)
                                             ->tel(),
                                     ]),
                             ]),
@@ -262,16 +270,38 @@ class FicheResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->striped()
             ->columns([
-                Tables\Columns\TextColumn::make('societe')->searchable(),
+                Tables\Columns\TextColumn::make('societe')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('rue')->searchable(),
-                Tables\Columns\TextColumn::make('localite')->searchable(),
+                Tables\Columns\TextColumn::make('localite')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('localite')->options(
+                    function () {
+                        $localites = [];
+                        foreach (City::all()->pluck('name') as $cityName) {
+                            $localites[$cityName] = $cityName;
+                        }
 
+                        return $localites;
+                    },
+                ),
+                SelectFilter::make('tags')
+                   /* ->options(
+                        function () {
+                            return Tag::all()->get();
+                        },
+                    )*/
+                    ->relationship('tags', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

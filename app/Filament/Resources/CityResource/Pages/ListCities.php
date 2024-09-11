@@ -10,6 +10,11 @@ class ListCities extends ListRecords
 {
     protected static string $resource = CityResource::class;
 
+    public function getTableRecordsPerPage(): int
+    {
+        return 40;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

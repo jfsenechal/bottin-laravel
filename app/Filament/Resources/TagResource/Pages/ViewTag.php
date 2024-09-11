@@ -4,21 +4,22 @@ namespace App\Filament\Resources\TagResource\Pages;
 
 use App\Filament\Resources\TagResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Contracts\Support\Htmlable;
 
-class ListTags extends ListRecords
+class ViewTag extends ViewRecord
 {
     protected static string $resource = TagResource::class;
 
-    public function getTableRecordsPerPage(): int
+    public function getTitle(): string|Htmlable
     {
-        return 40;
+        return $this->record->name;
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\EditAction::make(),
         ];
     }
 }
