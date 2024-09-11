@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\City;
 use App\Models\Fiche;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -28,5 +29,24 @@ class DatabaseSeeder extends Seeder
                 'societe' => 'AfmLibre',
                 'slug' => 'afm-libre',
             ]);
+
+        $cities = [
+            'Aye',
+            'Champlon',
+            'Grimbiémont',
+            'Hargimont',
+            'Hollogne',
+            'Humain',
+            'Lignières',
+            'Marloie',
+            'On',
+            'Roy',
+            'Verdenne',
+            'Waha',
+            'Marche-en-Famenne',
+        ];
+        foreach ($cities as $city) {
+            City::factory()->create(['name' => $city]);
+        }
     }
 }

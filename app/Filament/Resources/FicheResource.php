@@ -6,6 +6,7 @@ use App\Enum\SocialNetworksEnum;
 use App\Filament\Resources\FicheResource\Pages;
 use App\Livewire\BrowseCategories;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Fiche;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -55,7 +57,10 @@ class FicheResource extends Resource
                                     ->autocomplete(false),
                                 Forms\Components\TextInput::make('cp')->label('Code postal')->integer(),
                                 Forms\Components\TextInput::make('localite')
-                                    ->autocomplete(false),
+                                    ->autocomplete(false)
+                                    ->datalist(
+                                        fn() => City::all()->pluck('name')->toArray(),
+                                    ),
                                 Forms\Components\TextInput::make('website')
                                     ->url()
                                     ->prefix('https://'),
@@ -105,6 +110,12 @@ class FicheResource extends Resource
                                         Forms\Components\Actions::make([
                                             Action::make('browseCategories')
                                                 ->label('Parcour les catégories')
+                                                ->successNotification(
+                                                    Notification::make()
+                                                        ->success()
+                                                        ->title('User updated')
+                                                        ->body('The user has been saved successfully.'),
+                                                )
                                                 ->form([
                                                     Forms\Components\Hidden::make('categorySelected'),
                                                     BrowseCategories::make('categoryBrowse')
@@ -253,6 +264,8 @@ class FicheResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('societe')->searchable(),
+                Tables\Columns\TextColumn::make('rue')->searchable(),
+                Tables\Columns\TextColumn::make('localite')->searchable(),
             ])
             ->filters([
 

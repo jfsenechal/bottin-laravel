@@ -72,13 +72,17 @@ return new class extends Migration {
             $table->string('user')->nullable(); // user (varchar 255, nullable)
             $table->string('instagram')->nullable(); // instagram (varchar 255, nullable)
             $table->boolean('enabled')->default(false); // enabled (tinyint 1, default 0)
-            $table->foreignId('adresse_id')->nullable()->constrained('adresses'); // adresse_id (foreign key)
+            $table
+                ->foreignId('adresse_id')
+                ->nullable()
+                ->constrained('adresses');
             $table->boolean('click_collect')->default(false); // click_collect (tinyint 1, default 0)
             $table->boolean('ecommerce')->default(false); // ecommerce (tinyint 1, default 0)
             $table->string('numero_tva')->nullable(); // numero_tva (varchar 255, nullable)
             $table->string('tiktok')->nullable(); // tiktok (varchar 255, nullable)
             $table->string('youtube')->nullable(); // youtube (varchar 255, nullable)
             $table->string('linkedin')->nullable(); // linkedin (varchar 255, nullable)
+            $table->string('pdv_id')->nullable();
             $table->timestamps();
         });
     }
